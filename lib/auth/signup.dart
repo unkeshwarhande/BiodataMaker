@@ -23,10 +23,12 @@ class _SignuUpState extends   State<SignuUp> {
   TextEditingController password=TextEditingController();
   TextEditingController confirmpassword=TextEditingController();
   bool registerSuccesful = false;
-  Future<void> registerUser() async {
+  bool registerflag =  false;
+  var resultData = {};
+  Future<bool> registerUser() async {
     print('pressed');
     try {
-      var url = Uri.parse('http://192.168.178.31:5000/api/auth/register');
+      var url = Uri.parse('http://43.205.151.113:5000/api/auth/register');
       print('pressed11');
       var data = jsonEncode({
         "username": "${username.text}",
@@ -46,35 +48,39 @@ class _SignuUpState extends   State<SignuUp> {
 
       if (response.statusCode == 201 || response.statusCode == 201 ) {
         print('Registration successful: ${jsonDecode(response.body)}');
-        setState(() {
-          registerSuccesful=true;
-        });
+        resultData=jsonDecode(response.body);
+        print('Registration successful data: ${resultData}');
+     return true;
 
       } else {
         print('Registration failed with status: ${response.statusCode}');
         print('Response body: ${response.body}');
+        resultData=jsonDecode(response.body);
+        print('Registration failed data: ${resultData['message']}');
+        return false;
       }
     } catch (e) {
       print('Error during registration: $e');
+      return false;
     }
   }
-  checkForRegisterUser(){
+/*  bool checkForRegisterUser(){
     print('called');
     if(username.text != null && username.text !='' && email.text != null && email.text !='' && phone.text != null && phone.text !='' && password.text != null && password.text !='' ){
       print('called22${username.text}');
       print('called22${email.text}');
       print('called22${phone.text}');
       print('called22${password.text}');
-      registerUser();
+      return registerUser();
     }
-  }
+    return false;
+  }*/
   @override
   Widget build(BuildContext context) {
    return Scaffold(
      backgroundColor: Colors.white,
      body: Column(
        children: [
-
          Container(
            height: 170,
            decoration: BoxDecoration(
@@ -205,8 +211,34 @@ class _SignuUpState extends   State<SignuUp> {
                        ),
                        SizedBox(height: 20,),
                        OutlinedButton(
-                           onPressed: (){
-                             checkForRegisterUser();
+                           onPressed: ()async{
+                             if(username.text != null && username.text !='' && email.text != null && email.text !='' && phone.text != null && phone.text !='' && password.text != null && password.text !='' ) {
+                               print('called22${username.text}');
+                               print('called22${email.text}');
+                               print('called22${phone.text}');
+                               print('called22${password.text}');
+                               registerflag = await registerUser();
+                               if (registerflag) {
+                                 Fluttertoast.showToast(
+                                   msg: "${resultData["message"]}",
+                                   toastLength: Toast.LENGTH_SHORT,
+                                   gravity: ToastGravity.BOTTOM,
+                                   textColor: Colors.white,
+                                   fontSize: 16.0,
+                                 );
+                                 Navigator.of(context).push(MaterialPageRoute(
+                                     builder: (context) => SignIn()));
+                               } else {
+                                 Fluttertoast.showToast(
+                                   msg: "${resultData["message"]}",
+                                   toastLength: Toast.LENGTH_SHORT,
+                                   gravity: ToastGravity.BOTTOM,
+                                   textColor: Colors.white,
+                                   fontSize: 16.0,
+                                 );
+                               }
+                             }
+
                            },
                            child: Text(
                              'SIGN UP',style: TextStyle(fontSize: 15,color: Colors.blue,fontFamily: 'Oxygen-Bold'),

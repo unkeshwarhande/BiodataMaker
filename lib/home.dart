@@ -10,8 +10,10 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
-
-
+import 'package:screenshot/screenshot.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 class HomePage extends StatefulWidget{
   @override
   State<HomePage> createState() {
@@ -40,15 +42,17 @@ class _HomePageState extends State<HomePage>{
     {'title':'Maternal Uncle','value':'Vishwanath devidas Patil Mungade','value1':'At Hokrna tq. Mukhed Dist. Nanded'},
   ];
   var selectedFrame='assets/5-thumb.webp';
-  var frameList=['assets/5-thumb.webp','assets/6-thumb.webp','assets/1-thumb.webp','assets/3-thumb.webp','assets/4-thumb.webp','assets/frame9.webp','assets/frame6.png'];
+  var frameList=['assets/6-thumb.webp','assets/3-thumb.webp','assets/4-thumb.webp','assets/frame9.webp','assets/frame/frame3.png'
+   ,'assets/frame/frame6.png','assets/frame/frame12.jpg','assets/frame/frame13.jpg'];
   var contactDetails=[];
+  String selectedLang="English";
   bool genratebiodataFlag=false;
   bool personlDetailsFlag=true;
   bool familyDetailsFlag=false;
   bool contactDetailsFlag=false;
   bool frameSelectionFlag=false;
 
-
+   Uint8List?  bytes;
   TextEditingController field1title=TextEditingController();
   TextEditingController field1value=TextEditingController();
   TextEditingController field2title=TextEditingController();
@@ -65,6 +69,8 @@ class _HomePageState extends State<HomePage>{
   TextEditingController field7value=TextEditingController();
   TextEditingController field8title=TextEditingController();
   TextEditingController field8value=TextEditingController();
+  TextEditingController field9title=TextEditingController();
+  TextEditingController field9value=TextEditingController();
 
   TextEditingController fdeails1title=TextEditingController();
   TextEditingController fdeails1value=TextEditingController();
@@ -90,7 +96,7 @@ class _HomePageState extends State<HomePage>{
   TextEditingController cdetais2title=TextEditingController();
   TextEditingController cdetais2value=TextEditingController();
   GlobalKey _globalKey = GlobalKey();
-
+  File? image1;
   @override
   void initState() {
     super.initState();
@@ -102,24 +108,36 @@ class _HomePageState extends State<HomePage>{
       print('Storage permission not granted');
     }
   }
+  Future pickImage(
+      [ImageSource imageSource = ImageSource.gallery,
+        bool requestFullMetadata = true]) async {
+    try {
+      final image = await ImagePicker().pickImage(
+          source: imageSource, requestFullMetadata: requestFullMetadata);
+      if (image == null) return;
+      image1 = File(image.path);
+setState(() {
 
-  Future<void> _captureAndSave() async {
+});
+
+
+    } on PlatformException catch (e) {
+      print('Failed to pick upp image $e');
+    } catch (e) {
+      print('error in image picker $e');
+    }
+  }
+  Future<Uint8List> _captureAndSave() async {
     try {
       RenderRepaintBoundary boundary = _globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-      ui.Image image = await boundary.toImage();
+      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
       ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       Uint8List pngBytes = byteData!.buffer.asUint8List();
-
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-      String path = appDocDir.path;
-      String fileName = 'capturedff_image.png';
-      File(path + '/' + fileName)..writeAsBytesSync(pngBytes);
-
-      final ByteData data = await rootBundle.load('$path/$fileName');
-      final Uint8List bytes = data.buffer.asUint8List();
+        return pngBytes!;
 
     } catch (e) {
       print('Error capturing and saving image: $e');
+      return Uint8List.fromList([]);
     }
   }
   @override
@@ -130,8 +148,8 @@ class _HomePageState extends State<HomePage>{
       body: SingleChildScrollView(
         child: Container(
           // height: 700*SizeConfig.blockSizeVertical,
-          padding: EdgeInsets.only(top: 70*SizeConfig.blockSizeVertical),
-          child:(genratebiodataFlag) ? genrateBiodata() : fillDetails()
+          padding: EdgeInsets.only(top: 70 * SizeConfig.blockSizeVertical),
+          child:(genratebiodataFlag) ? genrateBiodata()  : fillDetails()
         ),
       ),
     );
@@ -156,47 +174,92 @@ fillDetails(){
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 10*SizeConfig.blockSizeVertical,),
-          Center(child: Text(' Select Frame',style: TextStyle(fontSize: 18,fontWeight:FontWeight.bold,color:Colors.blue ))),
-          Container(
-            height: 600*SizeConfig.blockSizeVertical,
-            width: 370*SizeConfig.blockSizeHorizontal,
-            padding: EdgeInsets.symmetric(horizontal: 20*SizeConfig.blockSizeVertical),
-            child: ListView.builder(
-                itemCount: frameList.length,
-                // shrinkWrap: true,
-                itemBuilder: (context,index){
-                     return Column(
-                       children: [
-                       GestureDetector(
-                         onTap:(){
-                          setState(() {
-                            selectedFrame=frameList[index].toString();
-                            genratebiodataFlag=true;
-                          });
-                     },
-                         child: Container(
-                             height: 450*SizeConfig.blockSizeVertical,
-                             width: 300*SizeConfig.blockSizeHorizontal,
-                             child: Image.asset(frameList[index].toString()),
-                           ),
-                       ),
-                       ],
+          Padding(
+            padding: EdgeInsets.only(left: 20*SizeConfig.blockSizeHorizontal),
+            child: Row(
+              children: [
+                InkWell(
 
-                     );
-                }
+                    child: Icon(
+                      Icons.arrow_back_ios,size: 18*SizeConfig.blockSizeHorizontal,
+                    ),
+                    onTap:(){
+                      setState(() {
+                        personlDetailsFlag=false;
+                        familyDetailsFlag=false;
+                        contactDetailsFlag=true;
+                      });
+                    }
+                ),
+                SizedBox(height: 15*SizeConfig.blockSizeVertical,),
+                Text('Frame & Language Selection',style: TextStyle(fontSize: 18,fontWeight:FontWeight.bold,color:Colors.blue )),
+              ],
             ),
           ),
-          // SizedBox(height: 10*SizeConfig.blockSizeVertical),
+          SizedBox(height: 10*SizeConfig.blockSizeVertical,),
+          Center(child: Text(' Select Frame',style: TextStyle(fontSize: 18,fontWeight:FontWeight.bold,color:Colors.blue ))),
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: List.generate(frameList.length, (index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedFrame = frameList[index];
+
+                      });
+                    },
+                    child: Container(
+                      height: 200, // Fixed height for each item
+                      width: (MediaQuery.of(context).size.width - 32) / 3, // Calculate width for 3 items per row with spacing
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: Image.asset(frameList[index], fit: BoxFit.scaleDown),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+          SizedBox(height: 40,),
+          Row(children: [
+            SizedBox(width: 30,),
+          Text('Select Language'),
+           SizedBox(width: 70,),
+            GestureDetector(
+              onTap: (){
+                selectedLang ="English";
+                setState(() {
+
+                });
+              },
+              child: Text('English',style:TextStyle(color: selectedLang == 'English' ? Colors.yellow : Colors.black54),),
+            ),
+            SizedBox(width: 50,),
+            GestureDetector(
+              onTap: (){
+                selectedLang ="Marathi";
+                setState(() {
+
+                });
+              },
+              child: Text('Marathi',style:TextStyle(color: selectedLang == 'Marathi' ? Colors.yellow : Colors.black54),),
+            )
+
+          ],),
+
+
           Center(
             child: TextButton(
                 onPressed: (){
                   setState(() {
-                    personalDetails=[];
-                    print('aaaaaaaaaa${field1title.text} ${field1value.text}');
-                   personlDetailsFlag=false;
-                    contactDetailsFlag=false;
-                    familyDetailsFlag=true;
+
+                    genratebiodataFlag = true;
 
                   });
                 },
@@ -344,10 +407,10 @@ fillDetails(){
                 onPressed: (){
                  setState(() {
                    FamilyDetails=[];
-                   if(fdeails1title.text!='' && fdeails1title.text!=null && fdeails1value.text!=''&& fdeails1value.text!=null  && fdeails1details.text!=''&& fdeails1details.text!=null)
-                     FamilyDetails.add({'title':'${fdeails1title.text}', 'value':'${fdeails1value.text}','value1':'${fdeails1details.text}'});
-                   if(fdeails2title.text!='' && fdeails2title.text!=null && fdeails2value.text!=''&& fdeails2value.text!=null  && fdeails2details.text!=''&& fdeails2details.text!=null)
-                     FamilyDetails.add({'title':'${fdeails2title.text}', 'value':'${fdeails2value.text}','value1':'${fdeails2details.text}'});
+                   if(fdeails1title.text!='' && fdeails1title.text!=null && fdeails1value.text!=''&& fdeails1value.text!=null  )
+                     FamilyDetails.add({'title':'${fdeails1title.text}', 'value':'${fdeails1value.text}',});
+                   if(fdeails2title.text!='' && fdeails2title.text!=null && fdeails2value.text!=''&& fdeails2value.text!=null )
+                     FamilyDetails.add({'title':'${fdeails2title.text}', 'value':'${fdeails2value.text}',});
                    if(fdeails3title.text!='' && fdeails3title.text!=null && fdeails3value.text!=''&& fdeails3value.text!=null  && fdeails3details.text!=''&& fdeails3details.text!=null)
                      FamilyDetails.add({'title':'${fdeails3title.text}', 'value':'${fdeails3value.text}','value1':'${fdeails3details.text}'});
                    if(fdeails4title.text!='' && fdeails4title.text!=null && fdeails4value.text!=''&& fdeails4value.text!=null  && fdeails4details.text!=''&& fdeails4details.text!=null)
@@ -407,6 +470,8 @@ fillDetails(){
                  SizedBox(height: 15*SizeConfig.blockSizeVertical),
                  field1(field8title,field8value),
                  SizedBox(height: 15*SizeConfig.blockSizeVertical),
+                 field1(field9title,field9value),
+                 SizedBox(height: 15*SizeConfig.blockSizeVertical),
                  Center(
                    child: TextButton(
                        onPressed: (){
@@ -429,6 +494,8 @@ fillDetails(){
                              personalDetails.add({'title':'${field7title.text}', 'value':'${field7value.text}'});
                            if(field8title.text!='' && field8title.text!=null && field8value.text!=''&& field8value.text!=null)
                              personalDetails.add({'title':'${field8title.text}', 'value':'${field8value.text}'});
+                           if(field9title.text!='' && field9title.text!=null && field9value.text!=''&& field9value.text!=null)
+                             personalDetails.add({'title':'${field9title.text}', 'value':'${field9value.text}'});
                            personlDetailsFlag=false;
                            contactDetailsFlag=false;
                            familyDetailsFlag=true;
@@ -583,7 +650,7 @@ fillDetails(){
                 )),
               child: TextFormField(
                 inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(RegExp('[a-z A-Z 0-9-]')),
+                  // FilteringTextInputFormatter.allow(RegExp('[a-z A-Z 0-9-]')),
                   LengthLimitingTextInputFormatter(30)
                 ],
 
@@ -727,27 +794,34 @@ fillDetails(){
 Widget genrateBiodata(){
     return Column(
       children: [
-        GestureDetector(
-          onTap: (){
-            setState(() {
-              genratebiodataFlag=false;
-              frameSelectionFlag=true;
+        Row(
+          children: [
+            GestureDetector(
+              onTap: (){
+                setState(() {
+                  genratebiodataFlag=false;
+                  frameSelectionFlag=true;
 
-            });
-          },
-          child: Padding(
-              padding: EdgeInsets.only(left:20*SizeConfig.blockSizeHorizontal),
-            child: Icon(
-              Icons.arrow_back_ios
+                });
+              },
+              child: Padding(
+                  padding: EdgeInsets.only(left:20*SizeConfig.blockSizeHorizontal),
+                child: Icon(
+                  Icons.arrow_back_ios
+                ),
+              ),
             ),
-          ),
+       SizedBox(width: 50,),
+            Text(selectedLang == 'English' ?'Biodata': 'बायोडेटा')
+          ],
         ),
+        SizedBox(height: 40,),
         RepaintBoundary(
           key: _globalKey,
           child: Stack(
             children: [
               Container(
-                height: 600*SizeConfig.blockSizeVertical,
+                height: 680*SizeConfig.blockSizeVertical,
                 // width: 370*SizeConfig.blockSizeHorizontal,
                 child:Image.asset(selectedFrame,fit: BoxFit.fill,),
               ),
@@ -757,15 +831,29 @@ Widget genrateBiodata(){
                 children: [
                   SizedBox(height: 60*SizeConfig.blockSizeVertical,),
                   Container(
-                    height: 60*SizeConfig.blockSizeVertical,
+                    height: 100,
                     child: Center(
-                      child: Image.asset('assets/god.jpeg',fit: BoxFit.fill,),
+
+                      child: GestureDetector(
+                        onTap: ()async{
+                          await pickImage(ImageSource.gallery);
+                        },
+                          child: (image1 != null)
+                              ?  ClipOval(
+                                child: SizedBox.fromSize(
+                                  size: Size.fromRadius(50),
+                                  child: Image.file(image1!,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              )
+                              :Image.asset('assets/1000160837.png',fit: BoxFit.fill,)),
                     ),
                   ),
                   SizedBox(height: 10*SizeConfig.blockSizeVertical,),
-                  Center(child: Text('|| SHREE GANESHAY NAMHA ||',style: TextStyle(fontSize: 11,color: Color.fromRGBO(183, 142, 8,1),fontWeight: FontWeight.bold))),
+                  Center(child: Text(selectedLang == 'English' ? '|| SHREE GANESHAY NAMHA ||':'श्री गणेशाय नम:',style: TextStyle(fontSize: 11,color: Color.fromRGBO(183, 142, 8,1),fontWeight: FontWeight.bold))),
                   SizedBox(height: 3*SizeConfig.blockSizeVertical,),
-                  Center(child: Text('BIODATA',style: TextStyle(fontSize: 11,color: Color.fromRGBO(183, 142, 8,1),fontWeight: FontWeight.bold))),
+                  Center(child: Text(selectedLang == 'English' ? 'BIODATA' : 'बायोडेटा',style: TextStyle(fontSize: 11,color: Color.fromRGBO(183, 142, 8,1),fontWeight: FontWeight.bold))),
                   SizedBox(height: 15*SizeConfig.blockSizeVertical,),
                   Container(
                     padding: EdgeInsets.only(left: 40*SizeConfig.blockSizeHorizontal,top: 0),
@@ -781,7 +869,7 @@ Widget genrateBiodata(){
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Container(
-                                  width:80*SizeConfig.blockSizeHorizontal,
+                                  width:70*SizeConfig.blockSizeHorizontal,
                                   child: Text(personalDetails[index]['title'].toString(),style: TextStyle(fontSize: 10,fontWeight: FontWeight.w500)),
                                 ),
                                 Container(
@@ -794,7 +882,7 @@ Widget genrateBiodata(){
                         }),
                   ),
                   SizedBox(height: 10*SizeConfig.blockSizeVertical,),
-                  Center(child: Text('FAMILY DETAILS',style: TextStyle(fontSize: 11,color: Color.fromRGBO(183, 142, 8,1),fontWeight: FontWeight.bold))),
+                  Center(child: Text(selectedLang == 'English' ? 'FAMILY DETAILS':'कौटुंबिक माहिती',style: TextStyle(fontSize: 11,color: Color.fromRGBO(183, 142, 8,1),fontWeight: FontWeight.bold))),
                   SizedBox(height: 10*SizeConfig.blockSizeVertical,),
                   Container(
                     padding: EdgeInsets.only(left: 40*SizeConfig.blockSizeHorizontal),
@@ -812,7 +900,7 @@ Widget genrateBiodata(){
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
-                                      width:80*SizeConfig.blockSizeHorizontal,
+                                      width:70*SizeConfig.blockSizeHorizontal,
                                       child: Text(FamilyDetails[index]['title'].toString(),style: TextStyle(fontSize: 10,fontWeight: FontWeight.w500,overflow: TextOverflow.visible)),
                                     ),
                                     Container(
@@ -843,7 +931,7 @@ Widget genrateBiodata(){
                         }),
                   ),
                   SizedBox(height: 10*SizeConfig.blockSizeVertical,),
-                  Center(child: Text('CONTACT DETAILS',style: TextStyle(fontSize: 11,color: Color.fromRGBO(183, 142, 8,1),fontWeight: FontWeight.bold))),
+                  Center(child: Text(selectedLang == 'English' ? 'CONTACT DETAILS': 'संपर्क',style: TextStyle(fontSize: 11,color: Color.fromRGBO(183, 142, 8,1),fontWeight: FontWeight.bold))),
                   SizedBox(height: 10*SizeConfig.blockSizeVertical,),
                   Container(
                     padding: EdgeInsets.only(left: 40*SizeConfig.blockSizeHorizontal,top: 0),
@@ -887,10 +975,38 @@ Widget genrateBiodata(){
             ],
           ),
         ),
+        SizedBox(height: 40,),
         Center(
           child: ElevatedButton(
-            onPressed: (){
-              _captureAndSave();
+            onPressed: ()async{
+              // _captureAndSave();
+              Uint8List pngBytes = await _captureAndSave();
+              final result = await ImageGallerySaver.saveImage(pngBytes, quality: 100, name: "${personalDetails[0]['value'].toString()}");
+              print("hhhhhh$result");
+              if(result['isSuccess']){
+                Fluttertoast.showToast(
+                  msg: "Image download successfully",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              }else{
+                Fluttertoast.showToast(
+                  msg: "error",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
+                );
+              }
+
+          /*    final controller =ScreenshotController();
+              final bytes = await controller.captureFromWidget(Material(child:genrateBiodata()));
+              setState((){
+                this.bytes =bytes;
+              });
+              saveImage(bytes);*/
             },
             child: Text('Download'),
           ),
@@ -898,4 +1014,9 @@ Widget genrateBiodata(){
       ],
     );
 }
+  saveImage(bytes)async{
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final file =File('${appDocDir.path}/image.png');
+    file.writeAsBytes(bytes);
+  }
 }
