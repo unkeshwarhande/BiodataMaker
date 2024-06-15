@@ -108,6 +108,7 @@ class _HomePageState extends State<HomePage>{
       print('Storage permission not granted');
     }
   }
+
   Future pickImage(
       [ImageSource imageSource = ImageSource.gallery,
         bool requestFullMetadata = true]) async {
@@ -116,17 +117,14 @@ class _HomePageState extends State<HomePage>{
           source: imageSource, requestFullMetadata: requestFullMetadata);
       if (image == null) return;
       image1 = File(image.path);
-setState(() {
-
-});
-
-
+      setState(() {});
     } on PlatformException catch (e) {
       print('Failed to pick upp image $e');
     } catch (e) {
       print('error in image picker $e');
     }
   }
+
   Future<Uint8List> _captureAndSave() async {
     try {
       RenderRepaintBoundary boundary = _globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
@@ -140,6 +138,7 @@ setState(() {
       return Uint8List.fromList([]);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,7 +146,6 @@ setState(() {
       resizeToAvoidBottomInset : true,
       body: SingleChildScrollView(
         child: Container(
-          // height: 700*SizeConfig.blockSizeVertical,
           padding: EdgeInsets.only(top: 70 * SizeConfig.blockSizeVertical),
           child:(genratebiodataFlag) ? genrateBiodata()  : fillDetails()
         ),
@@ -166,10 +164,8 @@ fillDetails(){
 
 
 }
-  frameSelectionFunc(){
+ Widget frameSelectionFunc(){
     return Container(
-      // height: 650*SizeConfig.blockSizeVertical,
-      // width: 370*SizeConfig.blockSizeHorizontal,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,12 +175,10 @@ fillDetails(){
             child: Row(
               children: [
                 InkWell(
-
                     child: Icon(
-                      Icons.arrow_back_ios,size: 18*SizeConfig.blockSizeHorizontal,
-                    ),
-                    onTap:(){
-                      setState(() {
+                      Icons.arrow_back_ios,size: 18*SizeConfig.blockSizeHorizontal,),
+                       onTap:(){
+                       setState(() {
                         personlDetailsFlag=false;
                         familyDetailsFlag=false;
                         contactDetailsFlag=true;
@@ -209,7 +203,6 @@ fillDetails(){
                     onTap: () {
                       setState(() {
                         selectedFrame = frameList[index];
-
                       });
                     },
                     child: Container(
@@ -227,52 +220,50 @@ fillDetails(){
             ),
           ),
           SizedBox(height: 40,),
-          Row(children: [
-            SizedBox(width: 30,),
-          Text('Select Language'),
-           SizedBox(width: 70,),
-            GestureDetector(
+          Row(
+            children: [
+              SizedBox(width: 30,),
+              Text('Select Language'),
+              SizedBox(width: 70,),
+              GestureDetector(
               onTap: (){
                 selectedLang ="English";
-                setState(() {
-
-                });
+                setState(() {});
               },
-              child: Text('English',style:TextStyle(color: selectedLang == 'English' ? Colors.yellow : Colors.black54),),
+              child: Text(
+                'English',style:TextStyle(color: selectedLang == 'English' ? Colors.yellow : Colors.black54),),
             ),
             SizedBox(width: 50,),
             GestureDetector(
               onTap: (){
                 selectedLang ="Marathi";
-                setState(() {
-
-                });
+                setState(() {});
               },
-              child: Text('Marathi',style:TextStyle(color: selectedLang == 'Marathi' ? Colors.yellow : Colors.black54),),
+              child: Text(
+                'Marathi',style:TextStyle(color: selectedLang == 'Marathi' ? Colors.yellow : Colors.black54),),
             )
-
-          ],),
-
-
+          ],
+          ),
           Center(
             child: TextButton(
                 onPressed: (){
                   setState(() {
-
                     genratebiodataFlag = true;
-
                   });
                 },
-                child: Text('Next',style: TextStyle(fontSize: 18))),
+                child: Text(
+                    'Next',style: TextStyle(fontSize: 18))),
           )
         ],
       ),
     );
   }
-  contactDetailsFunc(){
+
+
+
+  Widget contactDetailsFunc(){
     print('family deils$FamilyDetails');
     return Container(
-      // height: 650*SizeConfig.blockSizeVertical,
       width: 370*SizeConfig.blockSizeHorizontal,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -283,11 +274,9 @@ fillDetails(){
             child: Row(
               children: [
                 InkWell(
-
                     child: Icon(
-                      Icons.arrow_back_ios,size: 18*SizeConfig.blockSizeHorizontal,
-                    ),
-                    onTap:(){
+                      Icons.arrow_back_ios,size: 18*SizeConfig.blockSizeHorizontal,),
+                      onTap:(){
                       setState(() {
                         personlDetailsFlag=false;
                         familyDetailsFlag=true;
@@ -296,7 +285,8 @@ fillDetails(){
                     }
                 ),
                 SizedBox(height: 15*SizeConfig.blockSizeVertical,),
-                Text('Contact Details',style: TextStyle(fontSize: 18,fontWeight:FontWeight.bold,color:Colors.blue )),
+                Text(
+                    'Contact Details',style: TextStyle(fontSize: 18,fontWeight:FontWeight.bold,color:Colors.blue )),
               ],
             ),
           ),
@@ -335,15 +325,17 @@ fillDetails(){
                     genratebiodataFlag=false;
                     frameSelectionFlag=true;
                   });
-
                 },
-                child: Text('Next',style: TextStyle(fontSize: 18))),
+                child: Text(
+                    'Next',style: TextStyle(fontSize: 18))),
           )
         ],
       ),
     );
   }
-  familyDetailsFunc(){
+
+
+  Widget familyDetailsFunc(){
     print('personal deils$personalDetails');
     return SizedBox(
       width: 370*SizeConfig.blockSizeHorizontal,
@@ -356,16 +348,16 @@ fillDetails(){
             child: Row(
               children: [
                 InkWell(
-
                     child: Icon(
                       Icons.arrow_back_ios,size: 18*SizeConfig.blockSizeHorizontal,
                     ),
                     onTap:(){
-                setState(() {
+                    setState(() {
                   personlDetailsFlag=true;
                   familyDetailsFlag=false;
                   contactDetailsFlag=false;
-                });
+                }
+                );
                     }
                 ),
                 SizedBox(height: 15*SizeConfig.blockSizeVertical,),
@@ -432,9 +424,10 @@ fillDetails(){
       ),
     );
   }
-  personalDetailsFunc(){
+
+
+ Widget  personalDetailsFunc(){
     return Container(
-      // height: 590*SizeConfig.blockSizeVertical,
      child: Column(
        mainAxisAlignment: MainAxisAlignment.start,
        crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,8 +439,6 @@ fillDetails(){
          Center(child: Text('Personal Details',style: TextStyle(fontSize: 18,fontWeight:FontWeight.bold,color:Colors.blue ))),
          SingleChildScrollView(
            child: Container(
-             // height: 590*SizeConfig.blockSizeVertical,
-             // width: 370*SizeConfig.blockSizeHorizontal,
              padding: EdgeInsets.symmetric(horizontal: 20*SizeConfig.blockSizeVertical),
              child: Column(
                mainAxisAlignment: MainAxisAlignment.start,
@@ -499,7 +490,6 @@ fillDetails(){
                            personlDetailsFlag=false;
                            contactDetailsFlag=false;
                            familyDetailsFlag=true;
-
                          });
                        },
                        child: Text('Next',style: TextStyle(fontSize: 18))),
@@ -508,12 +498,11 @@ fillDetails(){
              ),
            ),
          ),
-         // SizedBox(height: 10*SizeConfig.blockSizeVertical),
-
        ],
      ),
     );
   }
+
   Widget field1(v1,v2) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -530,14 +519,12 @@ fillDetails(){
             borderRadius: BorderRadius.circular(12 * SizeConfig.blockSizeVertical),
           ),
           child: Container(
-
             child:Theme(data: Theme.of(context).copyWith(
                 textSelectionTheme: TextSelectionThemeData(
                   selectionColor: Color.fromRGBO(156, 168, 248, 1),
                 )),
               child: TextFormField(
                 inputFormatters: <TextInputFormatter>[
-                  // FilteringTextInputFormatter.allow(RegExp('[a-z A-Z 0-9-]')),
                   LengthLimitingTextInputFormatter(30)
                 ],
 
@@ -591,10 +578,8 @@ fillDetails(){
                 )),
               child: TextFormField(
                 inputFormatters: <TextInputFormatter>[
-                  // FilteringTextInputFormatter.allow(RegExp('[a-z A-Z 0-9-]')),
                   LengthLimitingTextInputFormatter(40)
                 ],
-
                 textAlignVertical: TextAlignVertical.center,
                 textInputAction: TextInputAction.next,
                 textAlign: TextAlign.left,
@@ -628,6 +613,8 @@ fillDetails(){
       ],
     );
   }
+
+
   Widget fdetails(v1,v2,v3) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -650,10 +637,8 @@ fillDetails(){
                 )),
               child: TextFormField(
                 inputFormatters: <TextInputFormatter>[
-                  // FilteringTextInputFormatter.allow(RegExp('[a-z A-Z 0-9-]')),
                   LengthLimitingTextInputFormatter(30)
                 ],
-
                 textAlignVertical: TextAlignVertical.center,
                 textInputAction: TextInputAction.next,
                 textAlign: TextAlign.left,
@@ -703,7 +688,6 @@ fillDetails(){
                 )),
               child: TextFormField(
                 inputFormatters: <TextInputFormatter>[
-                  // FilteringTextInputFormatter.allow(RegExp('[a-z A-Z 0-9-]')),
                   LengthLimitingTextInputFormatter(40)
                 ],
                 textInputAction: TextInputAction.next,
@@ -755,7 +739,6 @@ fillDetails(){
                 )),
               child: TextFormField(
                 inputFormatters: <TextInputFormatter>[
-                  // FilteringTextInputFormatter.allow(RegExp('[a-z A-Z 0-9-]')),
                   LengthLimitingTextInputFormatter(40)
                 ],
                 textInputAction: TextInputAction.next,
@@ -801,7 +784,6 @@ Widget genrateBiodata(){
                 setState(() {
                   genratebiodataFlag=false;
                   frameSelectionFlag=true;
-
                 });
               },
               child: Padding(
@@ -822,7 +804,6 @@ Widget genrateBiodata(){
             children: [
               Container(
                 height: 680*SizeConfig.blockSizeVertical,
-                // width: 370*SizeConfig.blockSizeHorizontal,
                 child:Image.asset(selectedFrame,fit: BoxFit.fill,),
               ),
               Column(
@@ -833,11 +814,9 @@ Widget genrateBiodata(){
                   Container(
                     height: 100,
                     child: Center(
-
                       child: GestureDetector(
                         onTap: ()async{
-                          await pickImage(ImageSource.gallery);
-                        },
+                          await pickImage(ImageSource.gallery);},
                           child: (image1 != null)
                               ?  ClipOval(
                                 child: SizedBox.fromSize(
@@ -959,17 +938,6 @@ Widget genrateBiodata(){
                           );
                         }),
                   ),
-                  // Container(
-                  //   child: Column(
-                  //     mainAxisAlignment: MainAxisAlignment.start,
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: [
-                  //       Center(child: Text('Address  : At. Lonal Tq. Mukhed Dist. Nanded',style: TextStyle(fontSize: 10),)),
-                  //       SizedBox(height: 5*SizeConfig.blockSizeVertical,),
-                  //       Center(child: Text('Contact No   : 9657939980',style: TextStyle(fontSize: 10),)),
-                  //     ],
-                  //   ),
-                  // )
                 ],
               ),
             ],
@@ -1000,13 +968,6 @@ Widget genrateBiodata(){
                   fontSize: 16.0,
                 );
               }
-
-          /*    final controller =ScreenshotController();
-              final bytes = await controller.captureFromWidget(Material(child:genrateBiodata()));
-              setState((){
-                this.bytes =bytes;
-              });
-              saveImage(bytes);*/
             },
             child: Text('Download'),
           ),
